@@ -1,0 +1,9 @@
+{
+    "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+    "type": "QuickStart",
+    "itemDisplayName": "Cloud gaming VM",
+    "description": "This template creates a cloud gaming client with NVidia GRID. Comes with Steam, Battle.net, Parsec and UltraVNC Server preinstalled. VNC default passwords: admin (Admin), view (Read-only)",
+    "summary": "Create a gaming client with extra SSD",
+    "githubUsername": "nyanhp",
+    "dateUpdated": "2018-09-08"
+  }
