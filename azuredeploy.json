@@ -261,13 +261,13 @@
                     "configurationArguments": {
                         "Credential": {
                             "UserName": "[parameters('adminUsername')]",
-                            "Password": "PrivateSettingsRef:adminPassword"
+                            "Password": "PrivateSettingsRef:pw"
                         }
                     }
                 },
                 "protectedSettings": {
                     "Items": {
-                        "AdminPassword": "[parameters('adminPassword')]"
+                        "pw": "[parameters('adminPassword')]"
                     }
                 }
             }

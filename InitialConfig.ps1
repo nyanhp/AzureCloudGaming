@@ -212,7 +212,7 @@ SingleWindowName=
     xRemoteFile VACDownload
     {
         DestinationPath = 'C:\DscDownloads\VAC451.zip'
-        Uri      = 'https://software.muzychenko.net/trials/vac451.zip'
+        Uri             = 'https://software.muzychenko.net/trials/vac451.zip'
     }
 
     Archive VACExtract
@@ -244,7 +244,7 @@ SingleWindowName=
     #region Display driver
     xRemoteFile TeslaM60
     {
-        Uri      = 'http://us.download.nvidia.com/Windows/Quadro_Certified/398.75/398.75-tesla-desktop-winserver2016-international.exe'
+        Uri             = 'http://us.download.nvidia.com/Windows/Quadro_Certified/398.75/398.75-tesla-desktop-winserver2016-international.exe'
         DestinationPath = 'C:\DscDownloads\398.75-tesla-desktop-winserver2016-international.exe'
     }
 
@@ -259,10 +259,10 @@ SingleWindowName=
 
     Script TeslaConfig
     {
-        GetScript = {@{Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)"){$Matches.Guid}}}}
-        TestScript = {}
-        SetScript = {
-            $guid = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)"){$Matches.Guid}}
+        GetScript  = {@{Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}}}
+        TestScript = {[bool](& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "\s*WDDM\s*") {$Matches.0}})}
+        SetScript  = {
+            $guid = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}
             & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0
             $global:DSCMachineStatus = 1
         }
@@ -279,8 +279,8 @@ SingleWindowName=
     # Setup controller first for silent setup
     Script Controller
     {
-        GetScript  = {@{Result = Get-ViGEmBusDevice}}
-        TestScript = {[bool](Get-ViGEmBusDevice)}
+        GetScript  = {@{Result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }}}
+        TestScript = {[bool](try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { })}
         SetScript  = {
             Add-ViGEmBusDevice
             Install-ViGEmBusDeviceDriver
@@ -307,11 +307,11 @@ SingleWindowName=
     #region Firewall
     Firewall UvncIn
     {
-        Name ='Ultra VNC Server 5900 TCP IN'
+        Name      = 'Ultra VNC Server 5900 TCP IN'
         LocalPort = 5900
-        Action = 'Allow'
-        Protocol = 'TCP'
-        Profile = 'Domain','Private','Public'
+        Action    = 'Allow'
+        Protocol  = 'TCP'
+        Profile   = 'Domain', 'Private', 'Public'
     }
     #endregion
 }
