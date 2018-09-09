@@ -25,7 +25,7 @@ configuration CloudGamingClient
     {
         DiskId      = 2
         DriveLetter = 'D'
-        DependsOn   = '[Disk]tempDisk'
+        #DependsOn   = '[Disk]tempDisk'
         DiskIdType  = 'Number'
         FSFormat    = 'NTFS'
         FSLabel     = 'LibraryData'
