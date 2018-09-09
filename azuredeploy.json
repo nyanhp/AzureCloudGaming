@@ -259,6 +259,7 @@
                         "function": "CloudGamingClient"
                     },
                     "configurationArguments": {
+                        "RebootNodeIfNeeded" : true,
                         "Credential": {
                             "UserName": "[parameters('adminUsername')]",
                             "Password": "PrivateSettingsRef:pw"

@@ -122,6 +122,7 @@ configuration CloudGamingClient
     #endregion
 
     #region UltraVNC customization
+    # Two ultravnc sections, depending on the version that is used...
     File uvncIni
     {
         DestinationPath = 'C:\Program Files\uvnc bvba\UltraVNC\ultravnc.ini'
@@ -131,6 +132,9 @@ configuration CloudGamingClient
         DependsOn       = '[PackageManagement]ultravnc'
         Contents        = @'
 [ultravnc]
+passwd=28AD591A62B4AD949F
+passwd2=8BF749ADC043135FED
+[UltraVNC]
 passwd=28AD591A62B4AD949F
 passwd2=8BF749ADC043135FED
 [admin]
@@ -203,7 +207,8 @@ EnableDriver=0
 EnableHook=1
 EnableVirtual=0
 SingleWindow=0
-SingleWindowName=        
+SingleWindowName=
+
 '@
     }
     #endregion
@@ -254,7 +259,7 @@ SingleWindowName=
         DependsOn = '[xRemoteFile]TeslaM60'
         Path      = 'C:\DscDownloads\398.75-tesla-desktop-winserver2016-international.exe'
         ProductId = ''
-        Arguments = '/s REBOOT=REALLYSUPPRESS'
+        Arguments = '/s /n'
     }
 
     Script TeslaConfig
@@ -266,6 +271,7 @@ SingleWindowName=
             & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0
             $global:DSCMachineStatus = 1
         }
+        DependsOn = '[Package]TeslaM60Install'
     }
 
     xPendingReboot teslaReboot
