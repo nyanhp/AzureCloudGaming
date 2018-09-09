@@ -38,6 +38,13 @@
             "metadata": {
                 "description": "Location for all resources."
             }
+        },
+        "configurationUri" : {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/nyanhp/AzureCloudGaming/master/Config.zip",
+            "metadata": {
+                "description": "URI pointing to archive containing DSC resources and InitialConfig.ps1"
+            }
         }
     },
     "variables": {
@@ -247,9 +254,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "configuration": {
-                        "url": "https://demo.blob.core.windows.net/",
-                        "script": "IisInstall.ps1",
-                        "function": "IISInstall"
+                        "url": "[parameters('configurationUri')]",
+                        "script": "InitialConfig.ps1",
+                        "function": "CloudGamingClient"
                     },
                     "configurationArguments": {
                         "Credential": {

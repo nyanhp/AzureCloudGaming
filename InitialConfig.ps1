@@ -235,7 +235,7 @@ SingleWindowName=
     Script VacDriver
     {
         DependsOn  = '[Archive]VACExtract'
-        GetScript  = {(pnputil.exe /enum-drivers ) -match '\w*:\s*vrtaucbl\.inf'}
+        GetScript  = {@{Result = (pnputil.exe /enum-drivers ) -match '\w*:\s*vrtaucbl\.inf'}}
         TestScript = {[bool]((pnputil.exe /enum-drivers ) -match '\w*:\s*vrtaucbl\.inf')}
         SetScript  = {
             PNPUtil.exe /add-driver 'C:\DscDownloads\VACSetup\vrtaucbl.inf' /install 
@@ -263,7 +263,7 @@ SingleWindowName=
 
     Script TeslaConfig
     {
-        GetScript = {& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)"){$Matches.Guid}}}
+        GetScript = {@{Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)"){$Matches.Guid}}}}
         TestScript = {}
         SetScript = {
             $guid = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)"){$Matches.Guid}}
@@ -283,7 +283,7 @@ SingleWindowName=
     # Setup controller first for silent setup
     Script Controller
     {
-        GetScript  = {Get-ViGEmBusDevice}
+        GetScript  = {@{Result = Get-ViGEmBusDevice}}
         TestScript = {[bool](Get-ViGEmBusDevice)}
         SetScript  = {
             Add-ViGEmBusDevice
