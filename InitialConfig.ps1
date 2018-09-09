@@ -15,12 +15,12 @@ configuration CloudGamingClient
     Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 6.1.0.0
 
     #region Disklayout
-    Disk tempDisk
+    <#Disk tempDisk # Until StorageDsc can reliably work with MBR disks as well
     {
         DiskId      = 1
         DiskIdType  = 'Number'
         DriveLetter = 'X'
-    }
+    }#>
     Disk dataDisk
     {
         DiskId      = 2
@@ -209,17 +209,15 @@ SingleWindowName=
     #endregion
 
     #region virtual audio cable setup - not on Chocolatey :-(
-    File VACDownload
+    xRemoteFile VACDownload
     {
         DestinationPath = 'C:\DscDownloads\VAC451.zip'
-        SourcePath      = 'https://software.muzychenko.net/trials/vac451.zip'
-        Ensure          = 'Present'
-        Type            = 'File'
+        Uri      = 'https://software.muzychenko.net/trials/vac451.zip'
     }
 
     Archive VACExtract
     {
-        DependsOn   = '[File]VACDownload'
+        DependsOn   = '[xRemoteFile]VACDownload'
         Path        = 'C:\DscDownloads\VAC451.zip'
         Destination = 'C:\DscDownloads\VACSetup'
         Force       = $true
@@ -244,18 +242,16 @@ SingleWindowName=
     #endregion
 
     #region Display driver
-    File TeslaM60
+    xRemoteFile TeslaM60
     {
-        SourcePath      = 'http://us.download.nvidia.com/Windows/Quadro_Certified/398.75/398.75-tesla-desktop-winserver2016-international.exe'
+        Uri      = 'http://us.download.nvidia.com/Windows/Quadro_Certified/398.75/398.75-tesla-desktop-winserver2016-international.exe'
         DestinationPath = 'C:\DscDownloads\398.75-tesla-desktop-winserver2016-international.exe'
-        Ensure          = 'Present'
-        Type            = 'File'
     }
 
     Package TeslaM60Install
     {
         Name      = 'NVIDIA Install Application'
-        DependsOn = '[File]TeslaM60'
+        DependsOn = '[xRemoteFile]TeslaM60'
         Path      = 'C:\DscDownloads\398.75-tesla-desktop-winserver2016-international.exe'
         ProductId = ''
         Arguments = '/s REBOOT=REALLYSUPPRESS'
