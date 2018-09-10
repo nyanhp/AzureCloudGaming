@@ -292,7 +292,7 @@ SingleWindowName=
     Script Controller
     {
         GetScript  = {@{Result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }}}
-        TestScript = {[bool](try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { })}
+        TestScript = {[bool]$result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }; $result}
         SetScript  = {
             Add-ViGEmBusDevice
             Install-ViGEmBusDeviceDriver
