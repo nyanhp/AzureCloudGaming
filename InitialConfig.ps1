@@ -14,6 +14,12 @@ configuration CloudGamingClient
     Import-DscResource -ModuleName xPendingReboot -ModuleVersion 0.4.0.0
     Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 6.1.0.0
 
+    LocalConfigurationManager 
+    {
+        RebootNodeIfNeeded = $true
+        ActionAfterReboot  = 'ContinueConfiguration'
+    }
+
     #region Disklayout
     <#Disk tempDisk # Until StorageDsc can reliably work with MBR disks as well
     {
@@ -271,7 +277,7 @@ SingleWindowName=
             & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0
             $global:DSCMachineStatus = 1
         }
-        DependsOn = '[Package]TeslaM60Install'
+        DependsOn  = '[Package]TeslaM60Install'
     }
 
     xPendingReboot teslaReboot
