@@ -8,11 +8,23 @@
                 "description": "Unique DNS Name storage account and public IP."
             }
         },
-        "ultraVncPort": {
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_NV24",
+            "allowedValues": [
+                "Standard_NV6",
+                "Standard_NV12",
+                "Standard_NV24"
+              ]
+        },
+        "rdpPort": {
             "type": "int",
-            "defaultValue": 5900,
+            "defaultValue": 4711,
             "minValue": 1025,
-            "maxValue": 65535
+            "maxValue": 65535,
+            "metadata": {
+                "description": "RDP port to use"
+            }
         },
         "adminUsername": {
             "type": "string",
@@ -88,12 +100,12 @@
                         }
                     },
                     {
-                        "name": "VNC",
+                        "name": "RDP",
                         "properties": {
-                            "description": "Allows VNC traffic",
+                            "description": "Allows RDP traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "[parameters('ultraVncPort')]",
+                            "destinationPortRange": "[parameters('rdpPort')]",
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
@@ -189,7 +201,7 @@
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Standard_NV6"
+                    "vmSize": "[parameters('vmSize')]"
                 },
                 "osProfile": {
                     "computerName": "[variables('vmName')]",
@@ -262,7 +274,8 @@
                         "Credential": {
                             "UserName": "[parameters('adminUsername')]",
                             "Password": "[parameters('adminPassword')]"
-                        }
+                        },
+                        "PortNumber" : "[parameters('rdpPort')]"
                     }
                 }
             }
@@ -286,13 +299,9 @@
           }
     ],
     "outputs": {
-        "VncPassword": {
+        "RdpCommand": {
             "type": "string",
-            "value": "Use the passwords 'view' (View-only) or 'admin' (Administrative) to access the VM via VNC"
-        },
-        "VncCommand": {
-            "type": "string",
-            "value": "[concat('vncviewer.exe -connect ', parameters('adminUsername'), '@', parameters('dnsLabelPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com', ':' ,parameters('ultraVncPort'))]"
+            "value": "[concat('mstsc /v ', parameters('dnsLabelPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com', ':' ,parameters('rdpPort'))]"
         }
     }
 }

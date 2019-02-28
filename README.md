@@ -15,17 +15,24 @@ This repository contains all you need to deploy a powerful VM on Azure to get yo
 
 - Standard NV6 VM (NVidia Tesla M60, 56 GiB RAM, 128 GiB SSD OS Disk)
 - Installed software
-  - Battle.net
   - Steam
   - Origin
   - UPlay
-  - UltraVNC for diagnostics and manual steps
   - Parsec for game streaming ([Parsec](https://parsecgaming.com/))
 - Configuration
   - Auto-logon of user account
   - Virtual Audio Cable
   - 500 GiB SSD for game data
 
+By deploying this template you invariably accept all license agreements and whatnot by:
+
+- Steam
+- Origin
+- Ubisoft
+- Parsec
+- NVidia
+- Eugene Muzychenko (Virtual Audio Cable)
+
 ## After deployment
 
-After the deployment has finished, everything should be set up. Since there is no way currently to pass initial credentials to Parsec, you need to login to the app manually. In order to do this, either use the command line returned after the deployment, or simply use VNC Viewer to connect. The default passwords are admin (Admin access) and view (Read-Only access). Be sure to change those.
+After the deployment has finished, everything should be set up. Since there is no way currently to pass initial credentials to Parsec, you need to login to the app manually. In order to do this, either use the command line returned after the deployment, or simply use RDP to connect.

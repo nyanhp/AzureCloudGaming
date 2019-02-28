@@ -1,4 +1,4 @@
-New-AzureRmResourceGroup -Name CloudGamingRg -Location 'westeurope'
+New-AzResourceGroup -Name CloudGamingRg -Location 'westeurope'
 
 $parameters = @{
     Name              = 'CloudGaming'
@@ -9,4 +9,4 @@ $parameters = @{
     adminPassword     = Read-Host -AsSecureString -Prompt 'Enter admin password'
     librarySizeGB     = 500
 }
-New-AzureRmResourceGroupDeployment @parameters
+New-AzResourceGroupDeployment @parameters

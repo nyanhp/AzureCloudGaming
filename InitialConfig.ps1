@@ -4,7 +4,10 @@ configuration CloudGamingClient
     (
         [Parameter(Mandatory)]
         [pscredential]
-        $Credential
+        $Credential,
+
+        [int]
+        $PortNumber = 4711
     )
 
     Import-DscResource -ModuleName PackageManagement -ModuleVersion 1.3.1
@@ -18,6 +21,15 @@ configuration CloudGamingClient
     {
         RebootNodeIfNeeded = $true
         ActionAfterReboot  = 'ContinueConfiguration'
+    }
+
+    # Set RDP port
+    Registry RdpPort
+    {
+        #HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\PortNumber
+        Key       = 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
+        ValueName = 'PortNumber'
+        ValueData = $PortNumber
     }
 
     #region Disklayout
@@ -212,12 +224,12 @@ configuration CloudGamingClient
     Firewall rdp_udp
     {
         Name                = 'RemoteDesktop-UserMode-In-UDP'
-        LocalPort           = 3389
+        LocalPort           = 4711
         Action              = 'Allow'
         Protocol            = 'UDP'
         Profile             = 'Domain', 'Private', 'Public'
         Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 3389]'
+        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 4711]'
         DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
         EdgeTraversalPolicy = 'Block'
         LooseSourceMapping  = $false
@@ -228,12 +240,12 @@ configuration CloudGamingClient
     Firewall rdp_udp
     {
         Name                = 'RemoteDesktop-UserMode-In-TCP'
-        LocalPort           = 3389
+        LocalPort           = 4711
         Action              = 'Allow'
         Protocol            = 'TCP'
         Profile             = 'Domain', 'Private', 'Public'
         Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 3389]'
+        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 4711]'
         DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
         EdgeTraversalPolicy = 'Block'
         LooseSourceMapping  = $false
