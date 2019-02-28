@@ -274,7 +274,7 @@
             }
         },
         {
-            "name": "TheBeast/NvidiaGpuDriverWindows')]",
+            "name": "TheBeast/NvidiaGpuDriverWindows",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[resourceGroup().location]",
             "dependsOn": [
