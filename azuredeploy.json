@@ -274,20 +274,19 @@
             }
         },
         {
-            "name": "TheBeast/GpuConfig",
+            "name": "TheBeast/NvidiaGpuDriverWindows')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2018-10-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', 'TheBeast')]"
             ],
+            "apiVersion": "2015-06-15",
             "properties": {
               "publisher": "Microsoft.HpcCompute",
               "type": "NvidiaGpuDriverWindows",
               "typeHandlerVersion": "1.2",
               "autoUpgradeMinorVersion": true,
-              "settings": {
-              }
+              "settings": {}
             }
           }
     ],
