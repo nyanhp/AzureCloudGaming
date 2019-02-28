@@ -237,7 +237,7 @@ configuration CloudGamingClient
         Direction           = 'Inbound'
     }
 
-    Firewall rdp_udp
+    Firewall rdp_tcp
     {
         Name                = 'RemoteDesktop-UserMode-In-TCP'
         LocalPort           = 4711
