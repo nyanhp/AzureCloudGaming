@@ -30,6 +30,8 @@ configuration CloudGamingClient
         Key       = 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
         ValueName = 'PortNumber'
         ValueData = $PortNumber
+        Force     = $true
+        Ensure    = 'Present'
     }
 
     #region Disklayout
