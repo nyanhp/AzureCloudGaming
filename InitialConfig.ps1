@@ -7,12 +7,12 @@ configuration CloudGamingClient
         $Credential
     )
 
-    Import-DscResource -ModuleName PackageManagement -ModuleVersion 1.1.7.2
-    Import-DscResource -ModuleName PSDSCResources -ModuleVersion 2.9.0.0
-    Import-DscResource -ModuleName StorageDsc -ModuleVersion 4.1.0.0
-    Import-DscResource -ModuleName xPSDesiredStateConfiguration
+    Import-DscResource -ModuleName PackageManagement -ModuleVersion 1.3.1
+    Import-DscResource -ModuleName PSDSCResources -ModuleVersion 2.10.0.0
+    Import-DscResource -ModuleName StorageDsc -ModuleVersion 4.5.0.0
+    Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.5.0.0
     Import-DscResource -ModuleName xPendingReboot -ModuleVersion 0.4.0.0
-    Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 6.1.0.0
+    Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 7.0.0.0
 
     LocalConfigurationManager 
     {
@@ -62,11 +62,11 @@ configuration CloudGamingClient
         Ensure             = 'Present'
         Name               = 'PSGallery'
         ProviderName       = 'PowerShellGet'
-        SourceLocation     = 'https://www.powershellgallery.com/api/v2/'  
+        SourceLocation     = 'https://www.powershellgallery.com/api/v2'  
         InstallationPolicy = 'Trusted'
     }
 
-    foreach ($package in @('goggalaxy', 'steam', 'origin', 'ultravnc', 'uplay'))
+    foreach ($package in @('goggalaxy', 'steam', 'origin', 'uplay', 'parsec'))
     {
         PackageManagement $package
         {
@@ -127,111 +127,28 @@ configuration CloudGamingClient
     }
     #endregion
 
-    #region UltraVNC customization
-    # Two ultravnc sections, depending on the version that is used...
-    File uvncIni
-    {
-        DestinationPath = 'C:\Program Files\uvnc bvba\UltraVNC\ultravnc.ini'
-        Type            = 'File'
-        Ensure          = 'Present'
-        Force           = $true
-        DependsOn       = '[PackageManagement]ultravnc'
-        Contents        = @'
-[ultravnc]
-passwd=28AD591A62B4AD949F
-passwd2=8BF749ADC043135FED
-[UltraVNC]
-passwd=28AD591A62B4AD949F
-passwd2=8BF749ADC043135FED
-[admin]
-UseRegistry=0
-SendExtraMouse=1
-MSLogonRequired=0
-NewMSLogon=0
-DebugMode=0
-Avilog=0
-path=C:\Program Files\uvnc bvba\UltraVNC
-accept_reject_mesg=
-DebugLevel=0
-DisableTrayIcon=0
-rdpmode=0
-LoopbackOnly=0
-UseDSMPlugin=0
-AllowLoopback=1
-AuthRequired=1
-ConnectPriority=0
-DSMPlugin=
-AuthHosts=
-DSMPluginConfig=
-AllowShutdown=1
-AllowProperties=1
-AllowEditClients=1
-FileTransferEnabled=1
-FTUserImpersonation=1
-BlankMonitorEnabled=1
-BlankInputsOnly=0
-DefaultScale=1
-primary=1
-secondary=0
-SocketConnect=1
-HTTPConnect=1
-AutoPortSelect=1
-PortNumber=5900
-HTTPPortNumber=5800
-IdleTimeout=0
-IdleInputTimeout=0
-RemoveWallpaper=0
-RemoveAero=0
-QuerySetting=2
-QueryTimeout=10
-QueryDisableTime=0
-QueryAccept=0
-QueryIfNoLogon=1
-InputsEnabled=1
-LockSetting=0
-LocalInputsDisabled=0
-EnableJapInput=0
-EnableWin8Helper=0
-kickrdp=0
-clearconsole=0
-[admin_auth]
-group1=
-group2=
-group3=
-locdom1=0
-locdom2=0
-locdom3=0
-[poll]
-TurboMode=1
-PollUnderCursor=0
-PollForeground=0
-PollFullScreen=1
-OnlyPollConsole=0
-OnlyPollOnEvent=0
-MaxCpu=40
-EnableDriver=0
-EnableHook=1
-EnableVirtual=0
-SingleWindow=0
-SingleWindowName=
-
-'@
-    }
-    #endregion
-
     #region virtual audio cable setup - not on Chocolatey :-(
     xRemoteFile VACDownload
     {
-        DestinationPath = 'C:\DscDownloads\VAC451.zip'
-        Uri             = 'https://software.muzychenko.net/trials/vac451.zip'
+        DestinationPath = 'C:\DscDownloads\VAC460.zip'
+        Uri             = 'https://software.muzychenko.net/trials/vac460.zip'
     }
 
     Archive VACExtract
     {
         DependsOn   = '[xRemoteFile]VACDownload'
-        Path        = 'C:\DscDownloads\VAC451.zip'
+        Path        = 'C:\DscDownloads\VAC460.zip'
         Destination = 'C:\DscDownloads\VACSetup'
         Force       = $true
+    }
+
+    xPackage VACInstall
+    {
+        Path      = 'C:\DscDownloads\VACSetup\setup64.exe'
+        Arguments = '-s -k 30570681-0a8b-46e5-8cb2-d835f43af0c5'
+        Name      = 'Virtual Audio Cable'
+        ProductId = '83ed7f0e-2028-4956-b0b4-39c76fdaef1d'
+        Ensure    = 'Present'
     }
     
     Service audio
@@ -240,44 +157,18 @@ SingleWindowName=
         StartupType = 'Automatic'
         State       = 'Running'
     }
-    # No silent setup possible.
-    Script VacDriver
-    {
-        DependsOn  = '[Archive]VACExtract'
-        GetScript  = {@{Result = (pnputil.exe /enum-drivers ) -match '\w*:\s*vrtaucbl\.inf'}}
-        TestScript = {[bool]((pnputil.exe /enum-drivers ) -match '\w*:\s*vrtaucbl\.inf')}
-        SetScript  = {
-            PNPUtil.exe /add-driver 'C:\DscDownloads\VACSetup\vrtaucbl.inf' /install 
-        }
-    }
     #endregion
 
     #region Display driver
-    xRemoteFile TeslaM60
-    {
-        Uri             = 'http://us.download.nvidia.com/Windows/Quadro_Certified/398.75/398.75-tesla-desktop-winserver2016-international.exe'
-        DestinationPath = 'C:\DscDownloads\398.75-tesla-desktop-winserver2016-international.exe'
-    }
-
-    Package TeslaM60Install
-    {
-        Name      = 'NVIDIA Install Application'
-        DependsOn = '[xRemoteFile]TeslaM60'
-        Path      = 'C:\DscDownloads\398.75-tesla-desktop-winserver2016-international.exe'
-        ProductId = ''
-        Arguments = '/s /n'
-    }
-
     Script TeslaConfig
     {
         GetScript  = {@{Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}}}
         TestScript = {[bool](& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "\s*WDDM\s*") {$Matches.0}})}
         SetScript  = {
             $guid = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}
-            & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0
+            [void] (& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0)
             $global:DSCMachineStatus = 1
         }
-        DependsOn  = '[Package]TeslaM60Install'
     }
 
     xPendingReboot teslaReboot
@@ -294,6 +185,7 @@ SingleWindowName=
         GetScript  = {@{Result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }}}
         TestScript = {[bool]$result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }; $result}
         SetScript  = {
+            $ErrorActionPreference = 'SilentlyContinue'
             Add-ViGEmBusDevice
             Install-ViGEmBusDeviceDriver
             $global:DSCMachineStatus = 1
@@ -317,12 +209,44 @@ SingleWindowName=
     #endregion
 
     #region Firewall
-    Firewall UvncIn
+    Firewall rdp_udp
     {
-        Name      = 'Ultra VNC Server 5900 TCP IN'
-        LocalPort = 5900
+        Name                = 'RemoteDesktop-UserMode-In-UDP'
+        LocalPort           = 3389
+        Action              = 'Allow'
+        Protocol            = 'UDP'
+        Profile             = 'Domain', 'Private', 'Public'
+        Group               = 'Remote Desktop'
+        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 3389]'
+        DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
+        EdgeTraversalPolicy = 'Block'
+        LooseSourceMapping  = $false
+        LocalOnlyMapping    = $false
+        Direction           = 'Inbound'
+    }
+
+    Firewall rdp_udp
+    {
+        Name                = 'RemoteDesktop-UserMode-In-TCP'
+        LocalPort           = 3389
+        Action              = 'Allow'
+        Protocol            = 'TCP'
+        Profile             = 'Domain', 'Private', 'Public'
+        Group               = 'Remote Desktop'
+        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 3389]'
+        DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
+        EdgeTraversalPolicy = 'Block'
+        LooseSourceMapping  = $false
+        LocalOnlyMapping    = $false
+        Direction           = 'Inbound'
+    }
+
+    Firewall ParsecIn
+    {
+        Name      = 'Parsec inbound traffic'
+        LocalPort = @(21277..21279)
         Action    = 'Allow'
-        Protocol  = 'TCP'
+        Protocol  = 'UDP'
         Profile   = 'Domain', 'Private', 'Public'
     }
     #endregion
