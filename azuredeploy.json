@@ -250,7 +250,7 @@
             "name": "TheBeast/dscconfig",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', 'TheBeast')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast/NvidiaGpuDriverWindows')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
