@@ -98,7 +98,7 @@ configuration CloudGamingClient
         DependsOn            = '[PackageManagementSource]Chocolatey'
         AdditionalParameters = @{
             AllowPrereleaseVersions = $true
-            MinimumVersion          = 1.0.0
+            RequiredVersion         = "1.0.0.20180613-beta"
         }
     }
 
