@@ -90,6 +90,18 @@ configuration CloudGamingClient
         }
     }
 
+    # Extra handling for parsec, which is currently beta    
+    PackageManagement parsec
+    {
+        Name                 = 'parsec'
+        ProviderName         = 'Chocolatey'
+        DependsOn            = '[PackageManagementSource]Chocolatey'
+        AdditionalParameters = @{
+            AllowPrereleaseVersions = $true
+            MinimumVersion          = 1.0.0
+        }
+    }
+
     PackageManagement ViGemModule
     {
         Name   = 'ViGEmManagementModule'
@@ -106,6 +118,7 @@ configuration CloudGamingClient
         ValueData = 1
         ValueType = 'DWord'
         Ensure    = 'Present'
+        Force     = $true
     }
     Registry AutoAdminCount
     {
@@ -114,6 +127,7 @@ configuration CloudGamingClient
         ValueData = 9999
         ValueType = 'DWord'
         Ensure    = 'Present'
+        Force     = $true
     }
     Registry DefaultUserName
     {
@@ -122,6 +136,7 @@ configuration CloudGamingClient
         ValueData = $Credential.UserName
         ValueType = 'String'
         Ensure    = 'Present'
+        Force     = $true
     }
     Registry DefaultPassword # This is not secure in any way! Auto-logon needs to be configured for Parsec to work
     {
@@ -130,6 +145,7 @@ configuration CloudGamingClient
         ValueData = $Credential.GetNetworkCredential().Password
         ValueType = 'String'
         Ensure    = 'Present'
+        Force     = $true
     }
     Registry LockScreen
     {
@@ -138,6 +154,7 @@ configuration CloudGamingClient
         ValueData = 1
         ValueType = 'DWord'
         Ensure    = 'Present'
+        Force     = $true
     }
     #endregion
 
