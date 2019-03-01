@@ -80,7 +80,7 @@ configuration CloudGamingClient
         InstallationPolicy = 'Trusted'
     }
 
-    foreach ($package in @('goggalaxy', 'steam', 'origin', 'uplay', 'parsec'))
+    foreach ($package in @('goggalaxy', 'steam', 'origin', 'uplay'))
     {
         PackageManagement $package
         {
