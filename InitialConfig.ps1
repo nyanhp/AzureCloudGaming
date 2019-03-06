@@ -26,10 +26,18 @@ configuration CloudGamingClient
     # Set RDP port
     Registry RdpPort
     {
-        #HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\PortNumber
         Key       = 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
         ValueName = 'PortNumber'
         ValueData = $PortNumber
+        Force     = $true
+        Ensure    = 'Present'
+    }
+
+    Registry RdpEnabled
+    {
+        Key       = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+        ValueName = 'fDenyTSConnections'
+        ValueData = 0
         Force     = $true
         Ensure    = 'Present'
     }
@@ -170,6 +178,13 @@ configuration CloudGamingClient
         StartupType = 'Automatic'
         State       = 'Running'
     }
+
+    Service TermServ
+    {
+        Name        = 'termservice'
+        StartupType = 'Automatic'
+        State       = 'Running'
+    }
     #endregion
 
     #region Display driver
@@ -189,33 +204,35 @@ configuration CloudGamingClient
     Firewall rdp_udp
     {
         Name                = 'RemoteDesktop-UserMode-In-UDP'
-        LocalPort           = 4711
+        LocalPort           = $PortNumber
         Action              = 'Allow'
         Protocol            = 'UDP'
         Profile             = 'Domain', 'Private', 'Public'
         Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 4711]'
+        Description         = "Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP $PortNumber]"
         DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
         EdgeTraversalPolicy = 'Block'
         LooseSourceMapping  = $false
         LocalOnlyMapping    = $false
         Direction           = 'Inbound'
+        Enabled             = 'True'
     }
 
     Firewall rdp_tcp
     {
         Name                = 'RemoteDesktop-UserMode-In-TCP'
-        LocalPort           = 4711
+        LocalPort           = $PortNumber
         Action              = 'Allow'
         Protocol            = 'TCP'
         Profile             = 'Domain', 'Private', 'Public'
         Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 4711]'
+        Description         = "Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP $PortNumber]"
         DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
         EdgeTraversalPolicy = 'Block'
         LooseSourceMapping  = $false
         LocalOnlyMapping    = $false
         Direction           = 'Inbound'
+        Enabled             = 'True'
     }
 
     Firewall ParsecIn
@@ -225,6 +242,7 @@ configuration CloudGamingClient
         Action    = 'Allow'
         Protocol  = 'UDP'
         Profile   = 'Domain', 'Private', 'Public'
+        Enabled   = 'True'
     }
     #endregion
 }
