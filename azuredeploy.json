@@ -213,6 +213,7 @@
                             "diskSizeGB": "[parameters('librarySizeGB')]",
                             "lun": 0,
                             "createOption": "Empty",
+                            "caching": "ReadOnly",
                             "managedDisk": {
                                 "storageAccountType": "StandardSSD_LRS"
                             }
