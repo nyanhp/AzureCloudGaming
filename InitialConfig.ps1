@@ -62,15 +62,6 @@ configuration CloudGamingClient
         InstallationPolicy = 'Trusted'
     }
 
-    PackageManagementSource ViGem
-    {
-        Ensure             = 'Present'
-        Name               = 'ViGem'
-        ProviderName       = 'PowerShellGet'
-        SourceLocation     = "https://nuget.vigem.org/"
-        InstallationPolicy = 'Trusted'
-    }
-
     PackageManagementSource PSGallery
     {
         Ensure             = 'Present'
@@ -90,24 +81,15 @@ configuration CloudGamingClient
         }
     }
 
-    # Extra handling for parsec, which is currently beta    
+    <# Extra handling for parsec, which is currently beta    
     PackageManagement parsec
     {
         Name                 = 'parsec'
         ProviderName         = 'Chocolatey'
         DependsOn            = '[PackageManagementSource]Chocolatey'
-        AdditionalParameters = @{
-            AllowPrereleaseVersions = $true
-            RequiredVersion         = "1.0.0.20180613-beta"
-        }
-    }
+        RequiredVersion      = "1.0.0.20180613-beta"
+    }#>
 
-    PackageManagement ViGemModule
-    {
-        Name   = 'ViGEmManagementModule'
-        Ensure = 'Present'
-        Source = 'ViGem'
-    }
     #endregion
 
     #region Auto-logon
@@ -208,37 +190,7 @@ configuration CloudGamingClient
         DependsOn = '[Script]TeslaConfig'
     }
     #endregion
-
-    #region Parsec setup
-    # Setup controller first for silent setup
-    Script Controller
-    {
-        GetScript  = {@{Result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }}}
-        TestScript = {[bool]$result = try {Get-ViGEmBusDevice -ErrorAction SilentlyContinue}catch { }; $result}
-        SetScript  = {
-            $ErrorActionPreference = 'SilentlyContinue'
-            Add-ViGEmBusDevice
-            Install-ViGEmBusDeviceDriver
-            $global:DSCMachineStatus = 1
-        }
-        DependsOn  = "[PackageManagement]ViGemModule"
-    }
-
-    xPendingReboot reboot
-    {
-        Name      = 'ControllerReboot'
-        DependsOn = '[Script]Controller'
-    }
-
-    xRemoteFile ParsecSetup
-    {
-        Uri             = 'https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe'
-        DestinationPath = 'C:\DscDownloads\parsec-windows.exe'
-        DependsOn       = '[xPendingReboot]reboot'
-    }
-
-    #endregion
-
+    
     #region Firewall
     Firewall rdp_udp
     {
