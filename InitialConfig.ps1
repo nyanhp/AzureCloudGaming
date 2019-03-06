@@ -14,14 +14,14 @@ configuration CloudGamingClient
     Import-DscResource -ModuleName PSDSCResources -ModuleVersion 2.10.0.0
     Import-DscResource -ModuleName StorageDsc -ModuleVersion 4.5.0.0
     Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.5.0.0
-    Import-DscResource -ModuleName xPendingReboot -ModuleVersion 0.4.0.0
     Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 7.0.0.0
 
-    LocalConfigurationManager 
+    <#LocalConfigurationManager 
     {
         RebootNodeIfNeeded = $true
         ActionAfterReboot  = 'ContinueConfiguration'
     }
+    #>
 
     # Set RDP port
     Registry RdpPort
@@ -182,12 +182,6 @@ configuration CloudGamingClient
             [void] (& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0)
             $global:DSCMachineStatus = 1
         }
-    }
-
-    xPendingReboot teslaReboot
-    {
-        Name      = 'TeslaReboot'
-        DependsOn = '[Script]TeslaConfig'
     }
     #endregion
     
