@@ -1,8 +1,8 @@
-New-AzResourceGroup -Name CloudGamingRg -Location 'westeurope'
+
 
 $parameters = @{
     Name              = 'CloudGaming'
-    ResourceGroupName = 'CloudGamingRg'
+    ResourceGroupName = (New-AzResourceGroup -Name CloudGamingRg -Location 'westeurope').ResourceGroupName
     TemplateFile      = "$psscriptroot\azuredeploy.json"
     dnsLabelPrefix    = "cloudgaming$((1..13 | ForEach-Object { [char[]](97..122) | Get-Random }) -join '')"
     adminUsername     = Read-Host -Prompt 'Username please'

@@ -34,9 +34,10 @@ configuration CloudGamingClient
 
     Registry RdpEnabled
     {
-        Key       = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+        Key       = 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
         ValueName = 'fDenyTSConnections'
         ValueData = 0
+        ValueType = 'DWord'
         Force     = $true
         Ensure    = 'Present'
     }
@@ -202,46 +203,42 @@ configuration CloudGamingClient
     #region Firewall
     Firewall rdp_udp
     {
-        Name                = 'RemoteDesktop-UserMode-In-UDP'
+        Name                = 'RemoteDesktop-UserMode-In-UDP_Custom'
         LocalPort           = $PortNumber
         Action              = 'Allow'
         Protocol            = 'UDP'
         Profile             = 'Domain', 'Private', 'Public'
-        Group               = 'Remote Desktop'
         Description         = "Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP $PortNumber]"
-        DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
-        EdgeTraversalPolicy = 'Block'
-        LooseSourceMapping  = $false
-        LocalOnlyMapping    = $false
+        DisplayName         = 'Remote Desktop - User Mode (UDP-In) Custom'
         Direction           = 'Inbound'
         Enabled             = 'True'
+        Ensure = 'Present'
     }
 
     Firewall rdp_tcp
     {
-        Name                = 'RemoteDesktop-UserMode-In-TCP'
+        Name                = 'RemoteDesktop-UserMode-In-TCP_Custom'
         LocalPort           = $PortNumber
         Action              = 'Allow'
         Protocol            = 'TCP'
         Profile             = 'Domain', 'Private', 'Public'
-        Group               = 'Remote Desktop'
         Description         = "Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP $PortNumber]"
-        DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
-        EdgeTraversalPolicy = 'Block'
-        LooseSourceMapping  = $false
-        LocalOnlyMapping    = $false
+        DisplayName         = 'Remote Desktop - User Mode (TCP-In) Custom'
         Direction           = 'Inbound'
         Enabled             = 'True'
+        Ensure = 'Present'
     }
 
     Firewall ParsecIn
     {
-        Name      = 'Parsec inbound traffic'
+        Name      = 'Parsec-inbound-UDP'
         LocalPort = @(21277..21279)
+        DisplayName = 'Parsec inbound traffic'
         Action    = 'Allow'
         Protocol  = 'UDP'
         Profile   = 'Domain', 'Private', 'Public'
         Enabled   = 'True'
+        Ensure = 'Present'
     }
     #endregion
 }
