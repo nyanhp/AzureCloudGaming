@@ -16,12 +16,11 @@ configuration CloudGamingClient
     Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.5.0.0
     Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 7.0.0.0
 
-    <#LocalConfigurationManager 
+    LocalConfigurationManager 
     {
         RebootNodeIfNeeded = $true
         ActionAfterReboot  = 'ContinueConfiguration'
     }
-    #>
 
     # Set RDP port
     Registry RdpPort
