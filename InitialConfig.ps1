@@ -173,8 +173,24 @@ configuration CloudGamingClient
     #endregion
 
     #region Display driver
+    xRemoteFile TeslaM60	
+    {	
+        Uri             = 'http://us.download.nvidia.com/tesla/412.29/412.29-tesla-desktop-win10-64bit-international.exe'
+        DestinationPath = 'C:\DscDownloads\412.29-tesla-desktop-win10-64bit-international.exe'	
+    }	
+
+     Package TeslaM60Install	
+    {	
+        Name      = 'NVIDIA Install Application'	
+        DependsOn = '[xRemoteFile]TeslaM60'	
+        Path      = 'C:\DscDownloads\412.29-tesla-desktop-win10-64bit-international.exe'	
+        ProductId = ''	
+        Arguments = '/s /n'	
+    }
+
     Script TeslaConfig
     {
+        DependsOn = '[Package]TeslaM60Install'
         GetScript  = {@{Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}}}
         TestScript = {[bool](& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "\s*WDDM\s*") {$Matches.0}})}
         SetScript  = {
