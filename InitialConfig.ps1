@@ -175,15 +175,15 @@ configuration CloudGamingClient
     #region Display driver
     xRemoteFile TeslaM60	
     {	
-        Uri             = 'http://us.download.nvidia.com/tesla/412.29/412.29-tesla-desktop-win10-64bit-international.exe'
-        DestinationPath = 'C:\DscDownloads\412.29-tesla-desktop-win10-64bit-international.exe'	
+        Uri             = 'http://us.download.nvidia.com/tesla/412.29/412.29-tesla-desktop-winserver2016-international.exe'
+        DestinationPath = 'C:\DscDownloads\412.29-tesla-desktop-winserver2016-international.exe'	
     }	
 
      Package TeslaM60Install	
     {	
         Name      = 'NVIDIA Install Application'	
         DependsOn = '[xRemoteFile]TeslaM60'	
-        Path      = 'C:\DscDownloads\412.29-tesla-desktop-win10-64bit-international.exe'	
+        Path      = 'C:\DscDownloads\412.29-tesla-desktop-winserver2016-international.exe'	
         ProductId = ''	
         Arguments = '/s /n'	
     }
