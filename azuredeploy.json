@@ -17,15 +17,6 @@
                 "Standard_NV24"
               ]
         },
-        "rdpPort": {
-            "type": "int",
-            "defaultValue": 4711,
-            "minValue": 1025,
-            "maxValue": 65535,
-            "metadata": {
-                "description": "RDP port to use"
-            }
-        },
         "adminUsername": {
             "type": "string",
             "metadata": {
@@ -59,7 +50,7 @@
         "subnet1Prefix": "10.0.0.0/24",
         "imagePublisher": "MicrosoftWindowsServer",
         "imageOffer": "WindowsServer",
-        "imageSKU": "2019-Datacenter",
+        "imageSKU": "2016-Datacenter",
         "imageVersion": "latest",
         "publicIPAddressName": "cloudGamingIp",
         "publicIPAddressType": "Dynamic",
@@ -93,12 +84,12 @@
                         }
                     },
                     {
-                        "name": "RDP",
+                        "name": "uvnc",
                         "properties": {
-                            "description": "Allows RDP traffic",
+                            "description": "Allows VNC traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "[parameters('rdpPort')]",
+                            "destinationPortRange": "5900",
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
@@ -268,8 +259,7 @@
                         "Credential": {
                             "UserName": "[parameters('adminUsername')]",
                             "Password": "[parameters('adminPassword')]"
-                        },
-                        "PortNumber" : "[parameters('rdpPort')]"
+                        }
                     }
                 }
             }

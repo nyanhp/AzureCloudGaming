@@ -4,10 +4,7 @@ configuration CloudGamingClient
     (
         [Parameter(Mandatory)]
         [pscredential]
-        $Credential,
-
-        [int]
-        $PortNumber = 4711
+        $Credential
     )
 
     Import-DscResource -ModuleName PackageManagement -ModuleVersion 1.3.1
@@ -21,17 +18,6 @@ configuration CloudGamingClient
     {
         RebootNodeIfNeeded = $true
         ActionAfterReboot  = 'ContinueConfiguration'
-    }
-
-    # Set RDP port
-    Registry RdpPort
-    {
-        #HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\PortNumber
-        Key       = 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
-        ValueName = 'PortNumber'
-        ValueData = $PortNumber
-        Force     = $true
-        Ensure    = 'Present'
     }
 
     #region Disklayout
@@ -71,7 +57,7 @@ configuration CloudGamingClient
         InstallationPolicy = 'Trusted'
     }
 
-    foreach ($package in @('goggalaxy', 'steam', 'origin', 'uplay'))
+    foreach ($package in @('goggalaxy', 'steam', 'ultravnc', 'origin', 'uplay'))
     {
         PackageManagement $package
         {
@@ -90,6 +76,93 @@ configuration CloudGamingClient
         RequiredVersion      = "1.0.0.20180613-beta"
     }#>
 
+    #endregion
+
+    #region UltraVNC customization
+    File uvncIni
+    {
+        DestinationPath = 'C:\Program Files\uvnc bvba\UltraVNC\ultravnc.ini'
+        Type            = 'File'
+        Ensure          = 'Present'
+        Force           = $true
+        DependsOn       = '[PackageManagement]ultravnc'
+        Contents        = @'
+[ultravnc]
+passwd=28AD591A62B4AD949F
+passwd2=8BF749ADC043135FED
+[admin]
+UseRegistry=0
+SendExtraMouse=1
+MSLogonRequired=0
+NewMSLogon=0
+DebugMode=0
+Avilog=0
+path=C:\Program Files\uvnc bvba\UltraVNC
+accept_reject_mesg=
+DebugLevel=0
+DisableTrayIcon=0
+rdpmode=0
+LoopbackOnly=0
+UseDSMPlugin=0
+AllowLoopback=1
+AuthRequired=1
+ConnectPriority=0
+DSMPlugin=
+AuthHosts=
+DSMPluginConfig=
+AllowShutdown=1
+AllowProperties=1
+AllowEditClients=1
+FileTransferEnabled=1
+FTUserImpersonation=1
+BlankMonitorEnabled=1
+BlankInputsOnly=0
+DefaultScale=1
+primary=1
+secondary=0
+SocketConnect=1
+HTTPConnect=1
+AutoPortSelect=1
+PortNumber=5900
+HTTPPortNumber=5800
+IdleTimeout=0
+IdleInputTimeout=0
+RemoveWallpaper=0
+RemoveAero=0
+QuerySetting=2
+QueryTimeout=10
+QueryDisableTime=0
+QueryAccept=0
+QueryIfNoLogon=1
+InputsEnabled=1
+LockSetting=0
+LocalInputsDisabled=0
+EnableJapInput=0
+EnableWin8Helper=0
+kickrdp=0
+clearconsole=0
+[admin_auth]
+group1=
+group2=
+group3=
+locdom1=0
+locdom2=0
+locdom3=0
+[poll]
+TurboMode=1
+PollUnderCursor=0
+PollForeground=0
+PollFullScreen=1
+OnlyPollConsole=0
+OnlyPollOnEvent=0
+MaxCpu=40
+EnableDriver=0
+EnableHook=1
+EnableVirtual=0
+SingleWindow=0
+SingleWindowName=        
+'@
+    }
     #endregion
 
     #region Auto-logon
@@ -208,36 +281,13 @@ configuration CloudGamingClient
     #endregion
     
     #region Firewall
-    Firewall rdp_udp
+    Firewall UvncIn
     {
-        Name                = 'RemoteDesktop-UserMode-In-UDP'
-        LocalPort           = 4711
-        Action              = 'Allow'
-        Protocol            = 'UDP'
-        Profile             = 'Domain', 'Private', 'Public'
-        Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 4711]'
-        DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
-        EdgeTraversalPolicy = 'Block'
-        LooseSourceMapping  = $false
-        LocalOnlyMapping    = $false
-        Direction           = 'Inbound'
-    }
-
-    Firewall rdp_tcp
-    {
-        Name                = 'RemoteDesktop-UserMode-In-TCP'
-        LocalPort           = 4711
-        Action              = 'Allow'
-        Protocol            = 'TCP'
-        Profile             = 'Domain', 'Private', 'Public'
-        Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 4711]'
-        DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
-        EdgeTraversalPolicy = 'Block'
-        LooseSourceMapping  = $false
-        LocalOnlyMapping    = $false
-        Direction           = 'Inbound'
+        Name      = 'Ultra VNC Server 5900 TCP IN'
+        LocalPort = 5900
+        Action    = 'Allow'
+        Protocol  = 'TCP'
+        Profile   = 'Domain', 'Private', 'Public'
     }
 
     Firewall ParsecIn
