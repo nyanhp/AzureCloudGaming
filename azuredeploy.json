@@ -10,12 +10,21 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_NV6",
+            "defaultValue": "Standard_NV24",
             "allowedValues": [
                 "Standard_NV6",
                 "Standard_NV12",
                 "Standard_NV24"
               ]
+        },
+        "rdpPort": {
+            "type": "int",
+            "defaultValue": 4711,
+            "minValue": 1025,
+            "maxValue": 65535,
+            "metadata": {
+                "description": "RDP port to use"
+            }
         },
         "adminUsername": {
             "type": "string",
@@ -48,9 +57,9 @@
         "addressPrefix": "10.0.0.0/16",
         "subnet1Name": "Subnet-1",
         "subnet1Prefix": "10.0.0.0/24",
-        "imagePublisher": "MicrosoftWindowsServer",
-        "imageOffer": "WindowsServer",
-        "imageSKU": "2016-Datacenter",
+        "imagePublisher": "MicrosoftWindowsDesktop",
+        "imageOffer": "Windows-10",
+        "imageSKU": "rs5-pro",
         "imageVersion": "latest",
         "publicIPAddressName": "cloudGamingIp",
         "publicIPAddressType": "Dynamic",
@@ -84,12 +93,12 @@
                         }
                     },
                     {
-                        "name": "uvnc",
+                        "name": "RDP",
                         "properties": {
-                            "description": "Allows VNC traffic",
+                            "description": "Allows RDP traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "5900",
+                            "destinationPortRange": "[parameters('rdpPort')]",
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
@@ -242,7 +251,7 @@
             "name": "TheBeast/dscconfig",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', 'TheBeast')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast', 'NvidiaGpuDriverWindows')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -259,11 +268,28 @@
                         "Credential": {
                             "UserName": "[parameters('adminUsername')]",
                             "Password": "[parameters('adminPassword')]"
-                        }
+                        },
+                        "PortNumber" : "[parameters('rdpPort')]"
                     }
                 }
             }
-        }
+        },
+        {
+            "name": "TheBeast/NvidiaGpuDriverWindows",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', 'TheBeast')]"
+            ],
+            "apiVersion": "2015-06-15",
+            "properties": {
+              "publisher": "Microsoft.HpcCompute",
+              "type": "NvidiaGpuDriverWindows",
+              "typeHandlerVersion": "1.2",
+              "autoUpgradeMinorVersion": true,
+              "settings": {}
+            }
+          }
     ],
     "outputs": {
         "RdpCommand": {
