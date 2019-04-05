@@ -15,7 +15,7 @@
                 "Standard_NV6",
                 "Standard_NV12",
                 "Standard_NV24"
-              ]
+            ]
         },
         "rdpPort": {
             "type": "int",
@@ -251,7 +251,8 @@
             "name": "TheBeast/dscconfig",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast', 'NvidiaGpuDriverWindows')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast', 'NvidiaGpuDriverWindows')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast', 'execPol')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -269,8 +270,26 @@
                             "UserName": "[parameters('adminUsername')]",
                             "Password": "[parameters('adminPassword')]"
                         },
-                        "PortNumber" : "[parameters('rdpPort')]"
+                        "PortNumber": "[parameters('rdpPort')]"
                     }
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-06-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "TheBeast/execPol",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', 'TheBeast')]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "commandToExecute": "powershell -Command \"& {Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass -Force; $null = Install-PackageProvider -Name NuGet -Force -ea SilentlyContinue}\""
                 }
             }
         },
@@ -283,13 +302,13 @@
             ],
             "apiVersion": "2015-06-15",
             "properties": {
-              "publisher": "Microsoft.HpcCompute",
-              "type": "NvidiaGpuDriverWindows",
-              "typeHandlerVersion": "1.2",
-              "autoUpgradeMinorVersion": true,
-              "settings": {}
+                "publisher": "Microsoft.HpcCompute",
+                "type": "NvidiaGpuDriverWindows",
+                "typeHandlerVersion": "1.2",
+                "autoUpgradeMinorVersion": true,
+                "settings": {}
             }
-          }
+        }
     ],
     "outputs": {
         "RdpCommand": {
