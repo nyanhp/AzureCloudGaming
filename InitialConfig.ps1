@@ -12,10 +12,10 @@ configuration CloudGamingClient
 
     Import-DscResource -ModuleName PackageManagement -ModuleVersion 1.3.1
     Import-DscResource -ModuleName PSDSCResources -ModuleVersion 2.10.0.0
-    Import-DscResource -ModuleName StorageDsc -ModuleVersion 4.5.0.0
-    Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.5.0.0
+    Import-DscResource -ModuleName StorageDsc -ModuleVersion 4.6.0.0
+    Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.6.0.0
     Import-DscResource -ModuleName xPendingReboot -ModuleVersion 0.4.0.0
-    Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 7.0.0.0
+    Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 7.1.0.0
 
     LocalConfigurationManager 
     {
@@ -49,6 +49,17 @@ configuration CloudGamingClient
         DiskIdType  = 'Number'
         FSFormat    = 'NTFS'
         FSLabel     = 'LibraryData'
+    }
+
+    foreach ($lib in @('gog','steam','blizzard','origin','uplay'))
+    {
+        File libraries
+        {
+            DestinationPath = "L:\$lib"
+            Type = 'Directory'
+            Ensure = 'Present'
+            DependsOn = '[Disk]dataDisk'
+        }
     }
     #endregion
 
@@ -147,6 +158,12 @@ configuration CloudGamingClient
         Uri             = 'https://software.muzychenko.net/trials/vac460.zip'
     }
 
+    xRemoteFile ParsecClient
+    {
+        DestinationPAth = 'C:\DscDownloads\Parsec.exe'
+        Uri             = 'https://s3.amazonaws.com/parsec-build/package/parsec-windows.exe'
+    }
+
     Archive VACExtract
     {
         DependsOn   = '[xRemoteFile]VACDownload'
@@ -162,6 +179,7 @@ configuration CloudGamingClient
         Name      = 'Virtual Audio Cable'
         ProductId = '83ed7f0e-2028-4956-b0b4-39c76fdaef1d'
         Ensure    = 'Present'
+        DependsOn = '[Archive]VACExtract'
     }
     
     Service audio
@@ -173,10 +191,22 @@ configuration CloudGamingClient
     #endregion
 
     #region Display driver
-    xPendingReboot rebootBeforeTesla
+    xRemoteFile GRIDDriverAzure
     {
-        Name      = 'PreTeslaReboot'
+        DestinationPath = 'C:\DscDownloads\grid.exe'
+        Uri             = 'https://go.microsoft.com/fwlink/?linkid=874181'
     }
+
+    xPackage GRIDDriverAzureInstall
+    {
+        Path      = 'C:\DscDownloads\grid.exe'
+        Arguments = '/s /n'
+        Name      = 'NVIDIA Install Application'
+        ProductId = ''
+        Ensure    = 'Present'
+        DependsOn = '[xRemoteFile]GRIDDriverAzure'
+    }
+
 
     Script TeslaConfig
     {
@@ -198,14 +228,8 @@ configuration CloudGamingClient
             Write-Verbose -Message "nvidia-smi returned: $($result | Out-String)"
             $global:DSCMachineStatus = 1
         }
-        DependsOn = '[xPendingReboot]rebootBeforeTesla'
     }
 
-    xPendingReboot teslaReboot
-    {
-        Name      = 'TeslaReboot'
-        DependsOn = '[Script]TeslaConfig'
-    }
     #endregion
     
     #region Firewall

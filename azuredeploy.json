@@ -251,7 +251,6 @@
             "name": "TheBeast/dscconfig",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast', 'NvidiaGpuDriverWindows')]",
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'TheBeast', 'execPol')]"
             ],
             "properties": {
@@ -292,28 +291,16 @@
                     "commandToExecute": "powershell -Command \"& {Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass -Force; Enable-PSRemoting -Force -SkipNet; $null = Install-PackageProvider -Name NuGet -Force -ea SilentlyContinue}\""
                 }
             }
-        },
-        {
-            "name": "TheBeast/NvidiaGpuDriverWindows",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', 'TheBeast')]"
-            ],
-            "apiVersion": "2015-06-15",
-            "properties": {
-                "publisher": "Microsoft.HpcCompute",
-                "type": "NvidiaGpuDriverWindows",
-                "typeHandlerVersion": "1.2",
-                "autoUpgradeMinorVersion": true,
-                "settings": {}
-            }
         }
     ],
     "outputs": {
         "RdpCommand": {
             "type": "string",
             "value": "[concat('mstsc /v ', parameters('dnsLabelPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com', ':' ,parameters('rdpPort'))]"
+        },
+        "ParsecClientSetup": {
+            "type": "string",
+            "value": "The Parsec setup needs to be started with 'C:\\DscDownloads\\Parsec.exe'"
         }
     }
 }
