@@ -180,11 +180,22 @@ configuration CloudGamingClient
 
     Script TeslaConfig
     {
-        GetScript  = {@{Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}}}
-        TestScript = {[bool](& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "\s*WDDM\s*") {$Matches.0}})}
+        GetScript  = {
+            $Result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}
+            Write-Verbose -Message "Found GUIDS: $(-join $Result)"
+            @{Result = $Result}
+        }
+        TestScript = {
+            Write-Verbose -Message 'Testing if WDDM is enabled or not'
+            $state = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Select-String "\s*WDDM\s*" -Quiet
+            Write-Verbose -Message "WDDM enabled: $state"
+            return $state
+        }
         SetScript  = {
             $guid = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" | Foreach-Object { if ($_ -match "(?<Guid>\d{8}:\d{2}:\d{2}\.\d)") {$Matches.Guid}}
-            [void] (& "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -g $guid -dm 0)
+            Write-Verbose -Message "Found GUIDS: $(-join $Result)"
+            $result = & "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -i $guid -dm 0
+            Write-Verbose -Message "nvidia-smi returned: $($result | Out-String)"
             $global:DSCMachineStatus = 1
         }
         DependsOn = '[xPendingReboot]rebootBeforeTesla'
@@ -201,12 +212,12 @@ configuration CloudGamingClient
     Firewall rdp_udp
     {
         Name                = 'RemoteDesktop-UserMode-In-UDP'
-        LocalPort           = 4711
+        LocalPort           = $PortNumber
         Action              = 'Allow'
         Protocol            = 'UDP'
         Profile             = 'Domain', 'Private', 'Public'
         Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 4711]'
+        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP $PortNumber]'
         DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
         EdgeTraversalPolicy = 'Block'
         LooseSourceMapping  = $false
@@ -217,12 +228,12 @@ configuration CloudGamingClient
     Firewall rdp_tcp
     {
         Name                = 'RemoteDesktop-UserMode-In-TCP'
-        LocalPort           = 4711
+        LocalPort           = $PortNumber
         Action              = 'Allow'
         Protocol            = 'TCP'
         Profile             = 'Domain', 'Private', 'Public'
         Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP 4711]'
+        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP $PortNumber]'
         DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
         EdgeTraversalPolicy = 'Block'
         LooseSourceMapping  = $false
