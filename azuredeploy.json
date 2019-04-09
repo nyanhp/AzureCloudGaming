@@ -289,7 +289,7 @@
                 "typeHandlerVersion": "1.9",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "commandToExecute": "powershell -Command \"& {Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass -Force; $null = Install-PackageProvider -Name NuGet -Force -ea SilentlyContinue}\""
+                    "commandToExecute": "powershell -Command \"& {Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass -Force; Enable-PSRemoting -Force -SkipNet; $null = Install-PackageProvider -Name NuGet -Force -ea SilentlyContinue}\""
                 }
             }
         },
