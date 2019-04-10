@@ -53,7 +53,7 @@ configuration CloudGamingClient
 
     foreach ($lib in @('gog','steam','blizzard','origin','uplay'))
     {
-        File libraries
+        File $lib
         {
             DestinationPath = "L:\$lib"
             Type = 'Directory'
