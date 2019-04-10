@@ -4,43 +4,17 @@ configuration CloudGamingClient
     (
         [Parameter(Mandatory)]
         [pscredential]
-        $Credential,
-
-        [int]
-        $PortNumber = 4711
+        $Credential
     )
 
     Import-DscResource -ModuleName PackageManagement -ModuleVersion 1.3.1
     Import-DscResource -ModuleName PSDSCResources -ModuleVersion 2.10.0.0
     Import-DscResource -ModuleName StorageDsc -ModuleVersion 4.6.0.0
     Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.6.0.0
-    Import-DscResource -ModuleName xPendingReboot -ModuleVersion 0.4.0.0
     Import-DscResource -ModuleName NetworkingDsc -ModuleVersion 7.1.0.0
 
-    LocalConfigurationManager 
-    {
-        RebootNodeIfNeeded = $true
-        ActionAfterReboot  = 'ContinueConfiguration'
-    }
 
-    # Set RDP port
-    Registry RdpPort
-    {
-        #HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\PortNumber
-        Key       = 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
-        ValueName = 'PortNumber'
-        ValueData = $PortNumber
-        Force     = $true
-        Ensure    = 'Present'
-    }
 
-    #region Disklayout
-    <#Disk tempDisk # Until StorageDsc can reliably work with MBR disks as well
-    {
-        DiskId      = 1
-        DiskIdType  = 'Number'
-        DriveLetter = 'X'
-    }#>
     Disk dataDisk
     {
         DiskId      = 2
@@ -233,38 +207,6 @@ configuration CloudGamingClient
     #endregion
     
     #region Firewall
-    Firewall rdp_udp
-    {
-        Name                = 'RemoteDesktop-UserMode-In-UDP'
-        LocalPort           = $PortNumber
-        Action              = 'Allow'
-        Protocol            = 'UDP'
-        Profile             = 'Domain', 'Private', 'Public'
-        Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP $PortNumber]'
-        DisplayName         = 'Remote Desktop - User Mode (UDP-In)'
-        EdgeTraversalPolicy = 'Block'
-        LooseSourceMapping  = $false
-        LocalOnlyMapping    = $false
-        Direction           = 'Inbound'
-    }
-
-    Firewall rdp_tcp
-    {
-        Name                = 'RemoteDesktop-UserMode-In-TCP'
-        LocalPort           = $PortNumber
-        Action              = 'Allow'
-        Protocol            = 'TCP'
-        Profile             = 'Domain', 'Private', 'Public'
-        Group               = 'Remote Desktop'
-        Description         = 'Inbound rule for the Remote Desktop service to allow RDP traffic. [TCP $PortNumber]'
-        DisplayName         = 'Remote Desktop - User Mode (TCP-In)'
-        EdgeTraversalPolicy = 'Block'
-        LooseSourceMapping  = $false
-        LocalOnlyMapping    = $false
-        Direction           = 'Inbound'
-    }
-
     Firewall ParsecIn
     {
         Name      = 'Parsec inbound traffic'

@@ -17,15 +17,6 @@
                 "Standard_NV24"
             ]
         },
-        "rdpPort": {
-            "type": "int",
-            "defaultValue": 4711,
-            "minValue": 1025,
-            "maxValue": 65535,
-            "metadata": {
-                "description": "RDP port to use"
-            }
-        },
         "adminUsername": {
             "type": "string",
             "metadata": {
@@ -46,7 +37,7 @@
         },
         "configurationUri": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/nyanhp/AzureCloudGaming/master/Config.zip",
+            "defaultValue": "https://github.com/nyanhp/AzureCloudGaming/blob/testRdp/Config.zip?raw=true",
             "metadata": {
                 "description": "URI pointing to archive containing DSC resources and InitialConfig.ps1"
             }
@@ -98,7 +89,7 @@
                             "description": "Allows RDP traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "[parameters('rdpPort')]",
+                            "destinationPortRange": "3389",
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
@@ -268,8 +259,7 @@
                         "Credential": {
                             "UserName": "[parameters('adminUsername')]",
                             "Password": "[parameters('adminPassword')]"
-                        },
-                        "PortNumber": "[parameters('rdpPort')]"
+                        }
                     }
                 }
             }
@@ -296,7 +286,7 @@
     "outputs": {
         "RdpCommand": {
             "type": "string",
-            "value": "[concat('mstsc /v ', parameters('dnsLabelPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com', ':' ,parameters('rdpPort'))]"
+            "value": "[concat('mstsc /v ', parameters('dnsLabelPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com')]"
         },
         "ParsecClientSetup": {
             "type": "string",
