@@ -37,7 +37,7 @@
         },
         "configurationUri": {
             "type": "string",
-            "defaultValue": "https://github.com/nyanhp/AzureCloudGaming/blob/testRdp/Config.zip?raw=true",
+            "defaultValue": "https://github.com/nyanhp/AzureCloudGaming/blob/master/Config.zip?raw=true",
             "metadata": {
                 "description": "URI pointing to archive containing DSC resources and InitialConfig.ps1"
             }
